@@ -39,7 +39,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t securecloudops-ai .
 
-      - - name: Trivy Base OS Scan (Advisory Warnings)
+      - name: Trivy Base OS Scan (Advisory Warnings)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "securecloudops-ai"
