@@ -1,4 +1,4 @@
-name: SecureCloudOps CI Pipeline
+name: SecureCloudOps DevSecOps Pipeline
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  build-test-and-scan:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,13 +19,32 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install project dependencies
+      - name: Install dependencies and Bandit
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r requirements.txt bandit
 
       - name: Run Django automated tests
         run: python manage.py test
 
+      - name: Bandit SAST Scan (Python Code)
+        run: bandit -r dashboard secure_ops --severity-level high
+
+      - name: Checkov IaC Scan (Terraform)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: terraform
+          framework: terraform
+
       - name: Build Docker image
         run: docker build -t securecloudops-ai .
+
+      - name: Trivy Container & Dependency Scan (Security Gate)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "securecloudops-ai"
+          format: "table"
+          exit-code: "1"
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
