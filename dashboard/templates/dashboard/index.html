@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureCloudOps AI | Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-dark text-light">
+
+<nav class="navbar navbar-dark bg-black border-bottom border-secondary mb-4">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">🛡️ SecureCloudOps AI</span>
+        <span class="badge bg-success">Pipeline Status: Ready</span>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Severity Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-danger bg-dark">
+                <div class="card-body">
+                    <h6 class="text-danger text-uppercase">Critical</h6>
+                    <h2 class="mb-0">{{ critical_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-warning bg-dark">
+                <div class="card-body">
+                    <h6 class="text-warning text-uppercase">High</h6>
+                    <h2 class="mb-0">{{ high_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-info bg-dark">
+                <div class="card-body">
+                    <h6 class="text-info text-uppercase">Medium</h6>
+                    <h2 class="mb-0">{{ medium_count }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-secondary bg-dark">
+                <div class="card-body">
+                    <h6 class="text-secondary text-uppercase">Low</h6>
+                    <h2 class="mb-0">{{ low_count }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Findings Table -->
+    <div class="card bg-black border-secondary">
+        <div class="card-header border-secondary d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Security Findings ({{ total_count }})</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Vulnerability</th>
+                        <th>Scanner</th>
+                        <th>Component</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in findings %}
+                    <tr>
+                        <td>
+                            {% if item.severity == 'CRITICAL' %}<span class="badge bg-danger">CRITICAL</span>
+                            {% elif item.severity == 'HIGH' %}<span class="badge bg-warning text-dark">HIGH</span>
+                            {% elif item.severity == 'MEDIUM' %}<span class="badge bg-info text-dark">MEDIUM</span>
+                            {% else %}<span class="badge bg-secondary">LOW</span>{% endif %}
+                        </td>
+                        <td>{{ item.title }}</td>
+                        <td><span class="badge border border-secondary">{{ item.tool }}</span></td>
+                        <td><code>{{ item.component }}</code></td>
+                        <td>{{ item.status }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-4">No security findings logged yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
