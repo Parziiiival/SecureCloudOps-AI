@@ -14,7 +14,7 @@ WORKDIR /app
 COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt && \
     pip uninstall -y setuptools wheel && \
-    rm -rf /usr/local/lib/python3.11/ensurepip/_bundled/setuptools*
+    rm -rf /usr/local/lib/python*/ensurepip/_bundled/setuptools* /usr/local/lib/python*/site-packages/pip/_vendor/bom.cdx.json
 
 # 5. Copy your Django project files into the container
 COPY . /app/
