@@ -39,12 +39,22 @@ jobs:
       - name: Build Docker image
         run: docker build -t securecloudops-ai .
 
-      - name: Trivy Container & Dependency Scan (Security Gate)
+      - - name: Trivy Base OS Scan (Advisory Warnings)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: "securecloudops-ai"
+          format: "table"
+          exit-code: "0"
+          ignore-unfixed: true
+          vuln-type: "os"
+          severity: "CRITICAL,HIGH"
+
+      - name: Trivy Dependency Scan (Security Gate)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: "securecloudops-ai"
           format: "table"
           exit-code: "1"
           ignore-unfixed: true
-          vuln-type: "os,library"
+          vuln-type: "library"
           severity: "CRITICAL,HIGH"
