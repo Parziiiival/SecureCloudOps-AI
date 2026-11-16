@@ -15,7 +15,7 @@
     </div>
 </nav>
 
-<div class="container">
+<div class="container pb-5">
     <!-- Severity Summary Cards -->
     <div class="row g-3 mb-4">
         <div class="col-md-3">
@@ -58,7 +58,7 @@
             <h5 class="mb-0">Security Findings ({{ total_count }})</h5>
         </div>
         <div class="table-responsive">
-            <table class="table table-dark table-hover mb-0">
+            <table class="table table-dark table-hover align-middle mb-0">
                 <thead>
                     <tr>
                         <th>Severity</th>
@@ -66,6 +66,7 @@
                         <th>Scanner</th>
                         <th>Component</th>
                         <th>Status</th>
+                        <th>AI Assistant</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,17 +82,61 @@
                         <td><span class="badge border border-secondary">{{ item.tool }}</span></td>
                         <td><code>{{ item.component }}</code></td>
                         <td>{{ item.status }}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary" onclick="askAiFix('{{ item.id }}')">
+                                ✨ AI Fix
+                            </button>
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center text-muted py-4">No security findings logged yet.</td>
+                        <td colspan="6" class="text-center text-muted py-4">No security findings logged yet.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- AI Vulnerability Assistant Panel -->
+    <div id="ai-panel" class="card bg-black border-info mt-4" style="display: none;">
+        <div class="card-header border-info d-flex justify-content-between align-items-center">
+            <h6 id="ai-panel-title" class="mb-0 text-info">AI Vulnerability Assistant</h6>
+            <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="document.getElementById('ai-panel').style.display='none'"></button>
+        </div>
+        <div class="card-body">
+            <pre id="ai-panel-body" class="mb-0 text-light" style="white-space: pre-wrap; font-family: inherit; line-height: 1.6;"></pre>
+        </div>
+    </div>
 </div>
+
+<script>
+async function askAiFix(findingId) {
+    const panel = document.getElementById("ai-panel");
+    const titleEl = document.getElementById("ai-panel-title");
+    const bodyEl = document.getElementById("ai-panel-body");
+
+    panel.style.display = "block";
+    titleEl.textContent = "Analyzing vulnerability with Google Gemini...";
+    bodyEl.textContent = "Generating risk analysis and remediation steps...";
+    panel.scrollIntoView({ behavior: "smooth" });
+
+    try {
+        const res = await fetch(`/explain/${findingId}/`);
+        const data = await res.json();
+        if (!res.ok) {
+            titleEl.textContent = "AI Assistant Error";
+            bodyEl.textContent = data.error || "Unable to fetch remediation advice.";
+            return;
+        }
+        titleEl.textContent = `AI Remediation: ${data.title}`;
+        bodyEl.textContent = data.advice;
+    } catch (err) {
+        titleEl.textContent = "Network Error";
+        bodyEl.textContent = err.message;
+    }
+}
+</script>
 
 </body>
 </html>
