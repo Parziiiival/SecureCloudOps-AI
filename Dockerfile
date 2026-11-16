@@ -23,4 +23,4 @@ COPY . /app/
 EXPOSE 8000
 
 # 7. Start the Django server listening on all container network interfaces
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python -c \"import os, django; os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'secure_ops.settings'); django.setup(); from dashboard.models import SecurityFinding; SecurityFinding.objects.exists() or [SecurityFinding.objects.create(**item) for item in [{'title': 'Hardcoded AWS Secret Key', 'tool': 'Bandit', 'severity': 'CRITICAL', 'component': 'settings.py'}, {'title': 'S3 Bucket Public Read Enabled', 'tool': 'Checkov', 'severity': 'HIGH', 'component': 'infra/main.tf'}, {'title': 'Outdated OpenSSL Package', 'tool': 'Trivy', 'severity': 'MEDIUM', 'component': 'Dockerfile'}]]\" && python manage.py runserver 0.0.0.0:${PORT:-8000}"]
